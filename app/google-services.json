@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "534311642378",
+    "project_id": "takingnotesapp-961f7",
+    "storage_bucket": "takingnotesapp-961f7.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:534311642378:android:947d963ac14756e83246f3",
+        "android_client_info": {
+          "package_name": "com.example.takingnotesapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCtFb5gp7fBUnkeGlPOIC6OSGnKTYbnJzQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
