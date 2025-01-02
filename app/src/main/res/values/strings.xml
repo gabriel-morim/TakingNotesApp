@@ -1,3 +1,22 @@
 <resources>
     <string name="app_name">TakingNotesApp</string>
+    <string name="firebase_login_ok">OK</string>
+    <string name="firebase_email_password_login_error">Erro de login</string>
+    <string name="firebase_invalid_email">E-mail inválido</string>
+    <string name="firebase_invalid_password">Password inválida</string>
+    <string name="firebase_invalid_password_confirmation">Password mal configurada</string>
+    <string name="firebase_password_min6chars">A password tem que ter mais que 6 caracteres.</string>
+    <string name="firebase_confirm_password">Confirme a password</string>
+    <string name="firebase_enter_password">Coloque a sua palavra-passe</string>
+    <string name="firebase_enter_valid_email">E-mail inválido</string>
+    <string name="firebase_enter_email">Coloque o seu e-mail.</string>
+    <string name="firebase_login_title">Login</string>
+    <string name="firebase_login_success">Successful login!</string>
+    <string name="firebase_already_login">Already logged in!</string>
+    <string name="user_logged_in">Logged in!</string>
+    <string name="firebase_no_account_question">This account doesn\'t exist.</string>
+    <string name="firebase_sign_up">Sign Up</string>
+    <string name="firebase_or">Or</string>
+    <string name="firebase_continue_with_google">Continue with Google</string>
+    <string name="google_client_id">534311642378-1i9237tm4prss3fvd6fp79gfs6rqb59s.apps.googleusercontent.com</string>
 </resources>

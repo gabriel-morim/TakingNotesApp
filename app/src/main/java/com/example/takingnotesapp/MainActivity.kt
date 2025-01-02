@@ -6,6 +6,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
@@ -16,6 +17,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -25,6 +27,44 @@ import androidx.navigation.compose.rememberNavController
 import com.example.takingnotesapp.ui.theme.TakingNotesAppTheme
 import com.example.takingnotesapp.ui.theme.TakingNotesAppTheme
 import com.google.firebase.FirebaseApp
+
+
+
+import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+
+import androidx.compose.ui.tooling.preview.Preview
+
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.*
+
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import android.app.Application
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.Alignment.Companion.CenterHorizontally
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -43,10 +83,6 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-fun logAndToast(oContexto: Context, tag: String, aMensagem: String) {
-    Log.d("FIRE:$tag", aMensagem)
-    Toast.makeText(oContexto, aMensagem, Toast.LENGTH_SHORT).show()
-}
 
 @Composable
 fun ProgramaPrincipal() {
@@ -70,7 +106,16 @@ fun ProgramaPrincipal() {
 
 @Composable
 fun AppNavigation(navController: NavHostController, viewModel: NoteViewModel) {
-    NavHost(navController, startDestination = Destino.NoteList1.route) {
+    NavHost(navController, startDestination = Destino.EcraLoginFirebase.route) {
+        composable(Destino.EcraLoginFirebase.route) {
+            EcraLoginFirebase(navController)
+        }
+        composable(Destino.EcraRegisterToFirebase.route) {
+            EcraRegisterToFirebase(navController)
+        }
+        composable(Destino.EcraSettings.route){
+            EcraSettings(navController)
+        }
         composable(Destino.NoteList1.route) {
             NoteList1Screen(viewModel)
         }
@@ -80,6 +125,14 @@ fun AppNavigation(navController: NavHostController, viewModel: NoteViewModel) {
         composable(Destino.NoteCreation.route) {
             NoteCreationScreen(viewModel)
         }
+    }
+    val currentUser = Firebase.auth.currentUser
+    if (currentUser != null) {
+        val oContexto = LocalContext.current
+        val aMensagem = oContexto.getString(R.string.firebase_already_login)
+        Log.d("SignInSuccess", aMensagem)
+        Toast.makeText(oContexto, aMensagem, Toast.LENGTH_SHORT).show()
+        navController.navigate(Destino.NoteList1.route)
     }
 }
 
@@ -125,220 +178,4 @@ fun BottomNavigationBar(navController: NavController, appItems: List<Destino>) {
     }
 }
 
-@Composable
-fun EcraLoginFirebase(navController: NavController) {
-    val oContexto = LocalContext.current
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    val emailError = remember { mutableStateOf(false) }
-    val passwordError = remember { mutableStateOf(false) }
-    val launcher = rememberFirebaseAuthLauncher(
-        onAuthComplete = {
-                result -> logAndToast(oContexto, "info", oContexto.getString(R.string.firebase_login_success))
-            navController.navigate(Destino.EcraSettings.route)
-        },
-        onAuthError = { error -> logAndToast(oContexto, "error", "signInWithGoogle:failure$error") }
-    )
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        Text(
-            text = stringResource(id = R.string.firebase_login_title),
-            fontSize = 24.sp,
-            color = Color.Black
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        // Replace with the actual image resource
-        Image(
-            painter = painterResource(id = R.drawable.firebase),
-            contentDescription = "Firebase Logo"
-        )
-        Spacer(modifier = Modifier.height(24.dp))
-        OutlinedTextField(
-            value = email,
-            onValueChange = {
-                email = it
-                emailError.value = !isValidEmail(it)
-            },
-            label = { Text(text = stringResource(id = R.string.firebase_enter_email)) },
-            keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Next),
-            isError = emailError.value,
-            modifier = Modifier.fillMaxWidth()
-        )
-        if (emailError.value) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Start // Align content to the start
-            ) {
-                Text(
-                    text = stringResource(id = R.string.firebase_enter_valid_email),
-                    color = Color.Red
-                )
-            }
-        }
-        Spacer(modifier = Modifier.height(8.dp))
-        OutlinedTextField(
-            value = password,
-            onValueChange = {
-                password = it
-                passwordError.value = !isValidPassword(it)
-            },
-            label = { Text(text = stringResource(id= R.string.firebase_enter_password)) },
-            visualTransformation = PasswordVisualTransformation(),
-            keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
-            isError = passwordError.value,
-            modifier = Modifier.fillMaxWidth()
-        )
-        if (passwordError.value) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Start // Align content to the start
-            ) {
-                Text(text = stringResource(id = R.string.firebase_password_min6chars),
-                    color = Color.Red
-                )
-            }
-        }
-        Spacer(modifier = Modifier.height(16.dp))
-        Button(
-            onClick = { performLogin(oContexto, email, password, emailError, passwordError, navController) },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("LOG IN")
-        }
-        Spacer(modifier = Modifier.height(24.dp))
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(text = stringResource(id = R.string.firebase_no_account_question))
-            TextButton(onClick = { navController.navigate(Destino.EcraRegisterToFirebase.route) }) {
-                Text(text = stringResource(id = R.string.firebase_sign_up), color = Color.Blue)
-            }
-        }
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(stringResource(id=R.string.firebase_or))
-        Spacer(modifier = Modifier.height(8.dp))
-        Button(
-            onClick = { performGoogleAuthentication(launcher, oContexto) },
-            colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(text = stringResource(id = R.string.firebase_continue_with_google), color = Color.White)
-        }
-    }
-}
 
-@Composable
-fun EcraLoginFirebase(navController: NavController) {
-    val oContexto = LocalContext.current
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    val emailError = remember { mutableStateOf(false) }
-    val passwordError = remember { mutableStateOf(false) }
-    val launcher = rememberFirebaseAuthLauncher(
-        onAuthComplete = {
-                result -> logAndToast(oContexto, "info", oContexto.getString(R.string.firebase_login_success))
-            navController.navigate(Destino.EcraSettings.route)
-        },
-        onAuthError = { error -> logAndToast(oContexto, "error", "signInWithGoogle:failure$error") }
-    )
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        Text(
-            text = stringResource(id = R.string.firebase_login_title),
-            fontSize = 24.sp,
-            color = Color.Black
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        // Replace with the actual image resource
-        Image(
-            painter = painterResource(id = R.drawable.firebase),
-            contentDescription = "Firebase Logo"
-        )
-        Spacer(modifier = Modifier.height(24.dp))
-        OutlinedTextField(
-            value = email,
-            onValueChange = {
-                email = it
-                emailError.value = !isValidEmail(it)
-            },
-            label = { Text(text = stringResource(id = R.string.firebase_enter_email)) },
-            keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Next),
-            isError = emailError.value,
-            modifier = Modifier.fillMaxWidth()
-        )
-        if (emailError.value) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Start // Align content to the start
-            ) {
-                Text(
-                    text = stringResource(id = R.string.firebase_enter_valid_email),
-                    color = Color.Red
-                )
-            }
-        }
-        Spacer(modifier = Modifier.height(8.dp))
-        OutlinedTextField(
-            value = password,
-            onValueChange = {
-                password = it
-                passwordError.value = !isValidPassword(it)
-            },
-            label = { Text(text = stringResource(id= R.string.firebase_enter_password)) },
-            visualTransformation = PasswordVisualTransformation(),
-            keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
-            isError = passwordError.value,
-            modifier = Modifier.fillMaxWidth()
-        )
-        if (passwordError.value) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Start // Align content to the start
-            ) {
-                Text(text = stringResource(id = R.string.firebase_password_min6chars),
-                    color = Color.Red
-                )
-            }
-        }
-        Spacer(modifier = Modifier.height(16.dp))
-        Button(
-            onClick = { performLogin(oContexto, email, password, emailError, passwordError, navController) },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("LOG IN")
-        }
-        Spacer(modifier = Modifier.height(24.dp))
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(text = stringResource(id = R.string.firebase_no_account_question))
-            TextButton(onClick = { navController.navigate(Destino.EcraRegisterToFirebase.route) }) {
-                Text(text = stringResource(id = R.string.firebase_sign_up), color = Color.Blue)
-            }
-        }
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(stringResource(id=R.string.firebase_or))
-        Spacer(modifier = Modifier.height(8.dp))
-        Button(
-            onClick = { performGoogleAuthentication(launcher, oContexto) },
-            colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(text = stringResource(id = R.string.firebase_continue_with_google), color = Color.White)
-        }
-    }
-}

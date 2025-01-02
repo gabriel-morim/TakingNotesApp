@@ -1,8 +1,7 @@
-package com.example.takingnotesapp.ui.theme
+package com.example.takingnotesapp
 
 import android.content.Context
 import android.content.Intent
-import android.provider.Settings.Global.getString
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.ManagedActivityResultLauncher
@@ -20,13 +19,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -43,9 +39,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.example.takingnotesapp.R
 import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.google.firebase.Firebase
 import com.google.firebase.auth.AuthResult
@@ -68,7 +62,7 @@ fun EcraRegisterToFirebase(navController: NavController) {
             val aMensagem = oContexto.getString(R.string.firebase_login_success)
             Log.d("SignInSuccess", aMensagem)
             Toast.makeText(oContexto, aMensagem, Toast.LENGTH_SHORT).show()
-            navController.navigate(Destino.Ecra02.route)
+            navController.navigate(Destino.NoteList1.route)
         },
         onAuthError = { error ->
             val aMensagem = "signInWithGoogle:failure$error"
@@ -209,7 +203,7 @@ fun performSignUp(
                     val aMensagem = oContexto.getString(R.string.firebase_login_ok)
                     Log.d("SignUpSuccess", aMensagem)
                     Toast.makeText(oContexto, aMensagem, Toast.LENGTH_SHORT).show()
-                    navController.navigate(Destino.Ecra02.route)
+                    navController.navigate(Destino.NoteList1.route)
                 } else {
                     val aMensagem = oContexto.getString(R.string.firebase_email_password_login_error)
                     Log.d("SignUpFailed", aMensagem, task.exception)

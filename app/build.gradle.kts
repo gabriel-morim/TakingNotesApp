@@ -51,6 +51,8 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.firebase.auth.ktx)
+    implementation(libs.androidx.runtime.livedata)
+    implementation(libs.androidx.espresso.core)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -67,6 +69,7 @@ dependencies {
     implementation("androidx.compose.material:material:$compose_material_version")
 
     implementation ("com.google.firebase:firebase-firestore-ktx:24.10.1")
+    implementation ("com.google.android.gms:play-services-auth:20.7.0")
 
 
 
@@ -80,4 +83,28 @@ dependencies {
 
     implementation(platform("com.google.firebase:firebase-bom:33.7.0"))
     implementation("com.google.firebase:firebase-analytics")
+
+
+
+    implementation ("com.google.firebase:firebase-auth-ktx")
+    implementation ("com.google.firebase:firebase-firestore-ktx")
+
+    // Compose Dependencies
+    implementation ("androidx.compose.ui:ui:1.5.0")
+    implementation ("androidx.compose.runtime:runtime:1.5.0")
+    implementation ("androidx.compose.material:material:1.5.0")
+
+    // Coil for image loading
+    implementation ("io.coil-kt:coil:2.3.0")
+    implementation ("io.coil-kt:coil-compose:2.3.0")
+
+
+    val markwon_version = "4.6.2"
+    implementation ("io.noties.markwon:core:$markwon_version")
+    implementation ("io.noties.markwon:ext-strikethrough:$markwon_version")
+    implementation ("io.noties.markwon:ext-tables:$markwon_version")
+    implementation ("io.noties.markwon:html:$markwon_version")
+    implementation ("io.noties.markwon:image-coil:$markwon_version")
+    implementation ("io.noties.markwon:editor:$markwon_version")
 }
+
