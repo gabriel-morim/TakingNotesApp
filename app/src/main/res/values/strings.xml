@@ -19,4 +19,5 @@
     <string name="firebase_or">Or</string>
     <string name="firebase_continue_with_google">Continue with Google</string>
     <string name="google_client_id">534311642378-1i9237tm4prss3fvd6fp79gfs6rqb59s.apps.googleusercontent.com</string>
+    <string name="firebase_no_account_question_">Don\'t have an account yet?</string>
 </resources>

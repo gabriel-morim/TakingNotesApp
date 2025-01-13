@@ -53,6 +53,10 @@ import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.auth
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material3.Icon
 
 fun logAndToast(oContexto: Context, tag: String, aMensagem: String) {
     Log.d("FIRE:$tag", aMensagem)
@@ -79,6 +83,7 @@ fun EcraLoginFirebase(navController: NavController) {
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
+
     ) {
         Text(
             text = stringResource(id = R.string.firebase_login_title),
@@ -150,7 +155,7 @@ fun EcraLoginFirebase(navController: NavController) {
             horizontalArrangement = Arrangement.Center,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text(text = stringResource(id = R.string.firebase_no_account_question))
+            Text(text = stringResource(id = R.string.firebase_no_account_question_))
             TextButton(onClick = { navController.navigate(Destino.EcraRegisterToFirebase.route) }) {
                 Text(text = stringResource(id = R.string.firebase_sign_up), color = Color.Blue)
             }
