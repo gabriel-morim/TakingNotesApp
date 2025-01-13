@@ -1,7 +1,16 @@
 # TakingNotes App
 
 TakingNotes é uma aplicação desenvolvida no Android Studio para facilitar a criação e a observação de notas. A ideia inicial era criar uma aplicação que mostrasse vários blocos de notas simultaneamente e que utilizasse markdown para a formatação de texto. Apesar de algumas funcionalidades planeadas não terem sido implementadas, o resultado final mantém o foco na usabilidade e segurança dos dados dos utilizadores.
-
+---
+## Funcionamento da aplicação
+- Criação de uma conta (se o utilizador não tiver uma existente).
+- Aceder ao ecrã de criação de notas.
+- Introduzir um título e um texto na nota.
+- Aceder a um dos ecrãs de notas.
+- Pressionar a seta na nota para observar a nota.
+- Pressionar no resto da nota para editar.
+- Pressionar no ícone do balde na nota para eliminá-la.
+---
 ## Funcionalidades Principais
 
 - **Criação e edição de notas**: Adicione novas notas facilmente e edite-as conforme necessário.
