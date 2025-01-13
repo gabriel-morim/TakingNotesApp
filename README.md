@@ -43,4 +43,5 @@ Embora a implementação do markdown não tenha sido concluída, a TakingNotes A
 
 ---
 
-Desenvolvido por Gabriel Morim.
+Desenvolvido por Gabriel Morim para a disciplina de Computação Móvel. 
+Apresentado a 13/01/2025.
