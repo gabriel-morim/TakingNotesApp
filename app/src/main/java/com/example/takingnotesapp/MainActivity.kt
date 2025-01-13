@@ -20,10 +20,12 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.takingnotesapp.ui.theme.TakingNotesAppTheme
 import com.google.firebase.FirebaseApp
 import com.google.firebase.Firebase
@@ -53,14 +55,14 @@ fun ProgramaPrincipal() {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
-    // Define routes where bottom bar should be hidden
     val routesWithoutBottomBar = listOf(
         Destino.EcraLoginFirebase.route,
-        Destino.EcraRegisterToFirebase.route
+        Destino.EcraRegisterToFirebase.route,
+        "${Destino.NoteEditScreen.route}/{noteId}"
     )
 
-    // Check if bottom bar should be shown
     val showBottomBar = !routesWithoutBottomBar.contains(currentRoute)
+            && !currentRoute.orEmpty().startsWith(Destino.NoteEditScreen.route)
 
     Scaffold(
         bottomBar = {
@@ -98,13 +100,46 @@ fun AppNavigation(navController: NavHostController, viewModel: NoteViewModel) {
             EcraSettings(navController)
         }
         composable(Destino.NoteList1.route) {
-            NoteList1Screen(viewModel)
+            NoteList1Screen(
+                viewModel = viewModel,
+                onNoteClick = { noteId ->
+                    navController.navigate("${Destino.NoteEditScreen.route}/$noteId")
+                }
+            )
         }
         composable(Destino.NoteList2.route) {
-            NoteList2Screen(viewModel)
+            NoteList2Screen(
+                viewModel = viewModel,
+                onNoteClick = { noteId ->
+                    navController.navigate("${Destino.NoteEditScreen.route}/$noteId")
+                }
+            )
         }
         composable(Destino.NoteCreation.route) {
-            NoteCreationScreen(viewModel)
+            NoteCreationScreen(
+                viewModel = viewModel,
+                onNoteCreated = {
+                    navController.popBackStack()
+                }
+            )
+        }
+        composable(
+            route = "${Destino.NoteEditScreen.route}/{noteId}",
+            arguments = listOf(
+                navArgument("noteId") {
+                    type = NavType.StringType
+                    nullable = false
+                }
+            )
+        ) { backStackEntry ->
+            val noteId = backStackEntry.arguments?.getString("noteId") ?: return@composable
+            NoteEditScreen(
+                noteId = noteId,
+                viewModel = viewModel,
+                onNavigateBack = {
+                    navController.popBackStack()
+                }
+            )
         }
     }
 }

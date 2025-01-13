@@ -44,6 +44,7 @@ class NoteViewModel {
     private val db = Firebase.firestore
     val notes = mutableStateOf<List<Note>>(emptyList())
     val expandedNotes = mutableStateOf<Set<String>>(setOf())
+    val currentNote = mutableStateOf<Note?>(null)
 
     init {
         fetchNotes()
@@ -74,6 +75,19 @@ class NoteViewModel {
         }
     }
 
+    fun getNoteById(noteId: String) {
+        db.collection("notes")
+            .document(noteId)
+            .get()
+            .addOnSuccessListener { document ->
+                currentNote.value = document.toObject(Note::class.java)?.copy(id = document.id)
+            }
+            .addOnFailureListener { e ->
+                println("Error fetching note: ${e.message}")
+                currentNote.value = null
+            }
+    }
+
     fun saveNote(note: Note) {
         val currentUser = Firebase.auth.currentUser
         if (currentUser != null) {
@@ -91,6 +105,28 @@ class NoteViewModel {
                 }
                 .addOnFailureListener { e ->
                     println("Error saving note: ${e.message}")
+                }
+        }
+    }
+
+    fun updateNote(noteId: String, title: String, content: String) {
+        val currentUser = Firebase.auth.currentUser
+        if (currentUser != null) {
+            val noteData = hashMapOf(
+                "title" to title,
+                "content" to content,
+                "userId" to currentUser.uid,
+                "timestamp" to System.currentTimeMillis()
+            )
+
+            db.collection("notes")
+                .document(noteId)
+                .update(noteData as Map<String, Any>)
+                .addOnSuccessListener {
+                    fetchNotes()
+                }
+                .addOnFailureListener { e ->
+                    println("Error updating note: ${e.message}")
                 }
         }
     }
@@ -176,13 +212,14 @@ fun ExpandableNoteCard(
     note: Note,
     isExpanded: Boolean,
     onExpandToggle: () -> Unit,
-    onDeleteClick: () -> Unit
+    onDeleteClick: () -> Unit,
+    onNoteClick: (String) -> Unit
 ) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp)
-            .clickable { onExpandToggle() }
+            .clickable { onNoteClick(note.id) }
             .animateContentSize()
     ) {
         Column(
@@ -224,7 +261,10 @@ fun ExpandableNoteCard(
 }
 
 @Composable
-fun NoteList1Screen(viewModel: NoteViewModel) {
+fun NoteList1Screen(
+    viewModel: NoteViewModel,
+    onNoteClick: (String) -> Unit
+) {
     val notes by viewModel.notes
     val expandedNotes by viewModel.expandedNotes
 
@@ -234,14 +274,18 @@ fun NoteList1Screen(viewModel: NoteViewModel) {
                 note = note,
                 isExpanded = expandedNotes.contains(note.id),
                 onExpandToggle = { viewModel.toggleNoteExpansion(note.id) },
-                onDeleteClick = { viewModel.deleteNote(note.id) }
+                onDeleteClick = { viewModel.deleteNote(note.id) },
+                onNoteClick = onNoteClick
             )
         }
     }
 }
 
 @Composable
-fun NoteList2Screen(viewModel: NoteViewModel) {
+fun NoteList2Screen(
+    viewModel: NoteViewModel,
+    onNoteClick: (String) -> Unit
+) {
     val notes by viewModel.notes
     val expandedNotes by viewModel.expandedNotes
 
@@ -251,14 +295,18 @@ fun NoteList2Screen(viewModel: NoteViewModel) {
                 note = note,
                 isExpanded = expandedNotes.contains(note.id),
                 onExpandToggle = { viewModel.toggleNoteExpansion(note.id) },
-                onDeleteClick = { viewModel.deleteNote(note.id) }
+                onDeleteClick = { viewModel.deleteNote(note.id) },
+                onNoteClick = onNoteClick
             )
         }
     }
 }
 
 @Composable
-fun NoteCreationScreen(viewModel: NoteViewModel) {
+fun NoteCreationScreen(
+    viewModel: NoteViewModel,
+    onNoteCreated: () -> Unit
+) {
     var title by remember { mutableStateOf("") }
     var content by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf<String?>(null) }
@@ -312,6 +360,7 @@ fun NoteCreationScreen(viewModel: NoteViewModel) {
                     title = ""
                     content = ""
                     errorMessage = null
+                    onNoteCreated()
                 } else {
                     errorMessage = "Title and content cannot be empty"
                 }
@@ -322,23 +371,93 @@ fun NoteCreationScreen(viewModel: NoteViewModel) {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NotesApp() {
-    val viewModel = remember { NoteViewModel() }
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Notes App") }
+fun NoteEditScreen(
+    noteId: String,
+    viewModel: NoteViewModel,
+    onNavigateBack: () -> Unit
+) {
+    var title by remember { mutableStateOf("") }
+    var content by remember { mutableStateOf("") }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(noteId) {
+        viewModel.getNoteById(noteId)
+    }
+
+    val currentNote by viewModel.currentNote
+
+    LaunchedEffect(currentNote) {
+        currentNote?.let {
+            title = it.title
+            content = it.content
+        }
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        CustomTextField(
+            value = title,
+            onValueChange = {
+                title = it
+                errorMessage = null
+            },
+            label = "Note Title",
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true,
+            isTitle = true
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        CustomTextField(
+            value = content,
+            onValueChange = {
+                content = it
+                errorMessage = null
+            },
+            label = "Note Content",
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+        )
+
+        errorMessage?.let {
+            Text(
+                text = it,
+                color = MaterialTheme.colorScheme.error,
+                modifier = Modifier.padding(top = 4.dp)
             )
-        },
-        content = { paddingValues ->
-            Column(modifier = Modifier.padding(paddingValues)) {
-                NoteCreationScreen(viewModel = viewModel)
-                Spacer(modifier = Modifier.height(16.dp))
-                NoteList1Screen(viewModel = viewModel)
-                NoteList2Screen(viewModel = viewModel)
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
+            Button(
+                onClick = {
+                    if (title.isNotBlank() && content.isNotBlank()) {
+                        viewModel.updateNote(noteId, title, content)
+                        onNavigateBack()
+                    } else {
+                        errorMessage = "Title and content cannot be empty"
+                    }
+                }
+            ) {
+                Text("Save Changes")
+            }
+
+            Button(
+                onClick = onNavigateBack
+            ) {
+                Text("Cancel")
             }
         }
-    )
+    }
 }

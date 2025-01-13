@@ -7,7 +7,7 @@ sealed class Destino(val route: String, val icon: Int, val title: String) {
     object NoteList1 : Destino(route = "noteList1", icon = R.drawable.baseline_notes_24, title = "Notes 1")
     object NoteList2 : Destino(route = "noteList2", icon = R.drawable.baseline_notes_24, title = "Notes 2")
     object NoteCreation : Destino(route = "EcraSettings", icon = R.drawable.baseline_settings_24, title = "Create Note")
-
+    object NoteEditScreen : Destino(route = "EcraEdit", icon = R.drawable.baseline_edit_note_24, title = "Edit Note")
 
     companion object {
         val toList = listOf(NoteList1, NoteList2, NoteCreation, EcraSettings)
